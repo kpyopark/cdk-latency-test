@@ -80,7 +80,8 @@ export class AzLatencyTestStack extends cdk.Stack {
         name : "sk",
         type : ddb.AttributeType.STRING
       },
-      billingMode: ddb.BillingMode.PAY_PER_REQUEST
+      billingMode: ddb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY
     });
 
     // After to create all ec2 instances. write 'START' messages in the CloudWatchLogStream to trigger ping test.
