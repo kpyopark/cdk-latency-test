@@ -53,7 +53,7 @@ CONTROL          | STATUS_KEY      | START                  |
 SRC172.24.0.176  | TGT172.24.0.5   |                        | 0.911/0.940/0.983/0.035
 ```
 
- One result record contains min/average/max/deviation value. 
+ One result record contains min/average/max/deviation of latency value. 
 
 ## Useful commands
 
