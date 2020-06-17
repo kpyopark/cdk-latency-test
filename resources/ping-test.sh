@@ -29,7 +29,7 @@ function putPingLatency() {
 }
 
 function testPing() {
-  for target_ipv4 in "${target_ips}"
+  for target_ipv4 in ${target_ips}
   do
     ping_result=`ping ${target_ipv4} -c 5 | grep rtt | awk '{ print $4 }'`
     putPingLatency "${local_ipv4}" "${target_ipv4}" "${ping_result}"

@@ -32,6 +32,7 @@ export class AzLatencyTestStack extends cdk.Stack {
     new s3deploy.BucketDeployment(this, "DeployFiles", {
       sources: [s3deploy.Source.asset("./resources")],
       destinationBucket: pingtestbucket,
+      retainOnDelete: false
     });
 
     // The code that defines your stack goes here
@@ -40,6 +41,7 @@ export class AzLatencyTestStack extends cdk.Stack {
       cidr: vpcLatencyTestCidr,
       enableDnsHostnames: true,
       enableDnsSupport: true,
+      maxAzs: 99,
       subnetConfiguration: [
         {
           subnetType: ec2.SubnetType.PRIVATE,
