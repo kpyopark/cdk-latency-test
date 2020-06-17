@@ -23,6 +23,14 @@ function putPingLatency() {
   aws dynamodb put-item --table-name ${target_ddb_table} --item '{ "pk": {"S" : "SRC'$1'" }, "sk" : { "S" : "TGT'$2'" }, "result" : { "S" : "'$3'" } }'
 }
 
+function testPing() {
+  for target_ipv4 in "${target_ips}"
+  do
+    ping_result=`ping ${target_ipv4} -c 5 | grep rtt | awk '{ print $4 }'`
+    putPingLatency "${local_ipv4}" "${target_ipv4}" "${ping_result}"
+  done
+}
+
 putLocalIp
 
 while(true) 
@@ -34,11 +42,7 @@ do
   START)
     echo 'Start' 
     retrieveIps
-    while read target_ipv4
-    do
-      ping_result=`ping ${target_ipv4} -c 5 | grep rtt | awk '{ print $4 }'`
-      putPingLatency "${local_ipv4}" "${target_ipv4}" "${ping_result}"
-    done << "${target_ips}"
+    testPing
   ;;
   STOP)
     echo 'Stop'
