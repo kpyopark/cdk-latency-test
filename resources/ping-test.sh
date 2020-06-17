@@ -9,6 +9,11 @@ status=''
 
 function retrieveStatus() {
   status=`aws dynamodb get-item --table-name ${target_ddb_table} --key '{ "pk" : { "S": "CONTROL" } , "sk" : {"S" : "STATUS_KEY" } }' | jq '.Item.value.S' | sed '1,$s/"//g'` 
+  if [ -z "${status}" ]
+  then 
+    status='STOP'
+    aws dynamodb put-item --table-name ${target_ddb_table} --item '{ "pk": {"S" : "CONTROL" }, "sk" : { "S" : "STATUS_KEY" }, "value" : { "S" : "STOP" } }'
+  fi
 }
 
 function retrieveIps() {
