@@ -116,7 +116,7 @@ export class AzLatencyTestStack extends cdk.Stack {
         `pingtestinst-${pos}`,
         {
           instanceType: ec2.InstanceType.of(
-            ec2.InstanceClass.M5A,
+            ec2.InstanceClass.T3,
             ec2.InstanceSize.LARGE
           ),
           machineImage: amznImage,
