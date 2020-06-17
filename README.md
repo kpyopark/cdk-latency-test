@@ -29,23 +29,29 @@ This project uses 'CDK' & 'TypeScript' language. So you should prepare prerequis
 4. After deployment, you can see one dynamodb table name of which includes 'AzLatencyTestStack...' keyword.
 5. Open it in the ddb console, in "Items" tab, you can see the current status record and all private IPs used in each test instance.
 
+```
 pk               | sk              | value           | result
 -------------------------------------------------------------------------- 
 CONTROL          | STATUS_KEY      | STOP            | 
 IP               | 172.24.0.176    |ap-northeast-2c  |
 IP               | 172.24.0.5      |ap-northeast-2a  |
 IP               | 172.24.0.81     |ap-northeast-2b  |
+```
 
 6. You can start testing to modify value to 'START' in the first 'CONTROL' record.
+```
 pk               | sk              | value           | result
 -------------------------------------------------------------------------- 
 CONTROL          | STATUS_KEY      | START           | 
+```
 
 7. After some times, you could see the result test such like belows. 
+```
 pk               | sk              | value                  | result
 -------------------------------------------------------------------------- 
 CONTROL          | STATUS_KEY      | START                  | 
 SRC172.24.0.176  | TGT172.24.0.5   |                        | 0.911/0.940/0.983/0.035
+```
 
  One result record contains min/average/max/deviation value. 
 
