@@ -51,7 +51,7 @@ export class AzLatencyTestStack extends cdk.Stack {
           name: "publicSubnet",
           cidrMask: 26,
         }
-      ],
+      ]
     });
 
     // make a security group to test ping test.
@@ -66,6 +66,12 @@ export class AzLatencyTestStack extends cdk.Stack {
       ec2.Port.allIcmp(),
       "allow private ips in a vpc for all icmp packet."
     );
+
+    pingsg.addIngressRule(
+      ec2.Peer.ipv4(vpcLatencyTestCidr),
+      ec2.Port.tcp(22),
+      "allow private ips for ssh in all hosts in same vpc."
+    )
 
     // TOKEN=\`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"\` \
     // && curl -H "X-aws-ec2-metadata-token: $TOKEN" -v http://169.254.169.254/latest/meta-data/placement/availability-zone
@@ -94,9 +100,10 @@ export class AzLatencyTestStack extends cdk.Stack {
       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       unzip awscliv2.zip
       sudo ./aws/install
+      sudo yum install -y jq
       aws s3 cp s3://${pingtestbucket.bucketName}/ping-test.sh ~ec2-user/
       chmod +x ~ec2-user/ping-test.sh
-      ~ec2-user/ping-test.sh &
+      ~ec2-user/ping-test.sh ${pingtestdb.tableName} &
       echo END_USERSCRIPT
       `,
     });
@@ -107,6 +114,17 @@ export class AzLatencyTestStack extends cdk.Stack {
       storage: ec2.AmazonLinuxStorage.GENERAL_PURPOSE
     });
 
+    const publicsshsg = new ec2.SecurityGroup(this, "publicsshsg", {
+      vpc: vpcLatencyTest,
+      securityGroupName: "publicsshsg",
+      description: "this sg contains only ingresh ssh rule for public.",
+    });
+
+    publicsshsg.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(22),
+      "allow public ips for ssh."
+    );
 
     // make instances each private subnet 
     const testec2list: ec2.Instance[] = [];
@@ -144,11 +162,29 @@ export class AzLatencyTestStack extends cdk.Stack {
       testinst.addToRolePolicy(
         new iam.PolicyStatement({
           actions: ["*"],
-          resources: [pingtestbucket.bucketArn],
+          resources: [pingtestbucket.bucketArn + "/*"],
           effect: iam.Effect.ALLOW,
         })
       );
       testec2list.push(testinst);
     }
+
+    let bastioninst = new ec2.Instance(this, `pingtestinst-bastioninst`, {
+      instanceType: ec2.InstanceType.of(
+        ec2.InstanceClass.T3,
+        ec2.InstanceSize.LARGE
+      ),
+      machineImage: amznImage,
+      vpc: vpcLatencyTest,
+      userData: userdata,
+      allowAllOutbound: true,
+      instanceName: `pingtestinst-bastion`,
+      keyName: keypairName,
+      securityGroup: publicsshsg,
+      vpcSubnets: {
+        subnets: vpcLatencyTest.publicSubnets,
+      },
+      sourceDestCheck: false,
+    });
   }
 }

@@ -21,7 +21,7 @@ function retrieveIps() {
 }
 
 function putLocalIp() {
-  aws dynamodb put-item --table-name ${target_ddb_table} --item '{ "pk": {"S" : "IP" }, "sk" : { "S" : "'${local_ipv4}'" } }'
+  aws dynamodb put-item --table-name ${target_ddb_table} --item '{ "pk": {"S" : "IP" }, "sk" : { "S" : "'${local_ipv4}'" }, "value" : { "S" : "'${az_loc}'" } }'
 }
 
 function putPingLatency() {
