@@ -26,6 +26,7 @@ export class AzLatencyTestStack extends cdk.Stack {
     // Make S3 to copy ping script. 
     const pingtestbucket = new s3.Bucket(this, `pingtest-script-bucket`, {
       bucketName: uploadBucketName,
+      removalPolicy: cdk.RemovalPolicy.DESTROY
     });
     // upload ping test script into bucket.
     new s3deploy.BucketDeployment(this, "DeployFiles", {
