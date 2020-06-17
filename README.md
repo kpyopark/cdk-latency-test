@@ -6,7 +6,7 @@
 
 # Prerequsite
 
-This project use 'CDK' & 'TypeScript' language. So you should prepare prerequiste requirements as followings.
+This project uses 'CDK' & 'TypeScript' language. So you should prepare prerequiste requirements as followings.
 
 1. Install aws cli (https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
 2. Install Node version manager (https://github.com/nvm-sh/nvm#installing-and-updating)
@@ -19,10 +19,10 @@ This project use 'CDK' & 'TypeScript' language. So you should prepare prerequist
 # How to install
 
 1. Clone this project
-2. Before to deploy. you should fix the 3 parameters. 
+2. Before to deploy. you should choose 3 parameters. 
    - bucketname : This CDK project will make one bucket used as deployment content repository. 
    - keypairname : EC2 keypair used in a test instances
-   - ddbname : This CDK project will make one dynamodb table. This table can control the test operation. (STOP/START) and also stores the test result. 
+   - ddbname : This CDK project will make one dynamodb table. This table can control the test operation. (STOP/START) and also stores the test results. 
 3. Use 'cdk deploy' command. 
    ex : cdk deploy -c bucketname=pingtestsomething -c keypairname=example.pem -c ddbname=pingtestddb
 
