@@ -11,12 +11,16 @@ function retrieveStatus() {
   status=`aws dynamodb get-item --table-name ${target_ddb_table} --key '{ "pk" : { "S": "CONTROL" } , "sk" : {"S" : "STATUS_KEY" } }' | jq '.Item.value.S' | sed '1,$s/"//g'` 
 }
 
-echo ${az_loc}
-echo ${local_ipv4}
-echo ${status}
+function retrieveIps() {
+  target_ips=`aws dynamodb query --table-name ${target_ddb_table} --select ALL_ATTRIBUTES --key-condition-expression 'pk = :param1'  --expression-attribute-values '{ ":param1" : { "S" : "IP"}}' | jq '.Items | .[].sk.S' | sed '1,$s/"//g'`
+}
 
 function putLocalIp() {
   aws dynamodb put-item --table-name ${target_ddb_table} --item '{ "pk": {"S" : "IP" }, "sk" : { "S" : "'${local_ipv4}'" } }'
+}
+
+function putPingLatency() {
+  aws dynamodb put-item --table-name ${target_ddb_table} --item '{ "pk": {"S" : "SRC'$1'" }, "sk" : { "S" : "TGT'$2'" }, "result" : { "S" : "'$3'" } }'
 }
 
 putLocalIp
@@ -29,12 +33,20 @@ do
   case "${status}" in
   START)
     echo 'Start' 
+    retrieveIps
+    while read target_ipv4
+    do
+      ping_result=`ping ${target_ipv4} -c 5 | grep rtt | awk '{ print $4 }'`
+      putPingLatency "${local_ipv4}" "${target_ipv4}" "${ping_result}"
+    done << "${target_ips}"
   ;;
   STOP)
     echo 'Stop'
+    sleep 5
   ;;
   TERMINATE)
-    echo 'termicate'
+    echo 'terminate'
+    exit 1
   ;;
   *)
   echo "There is no matched status in DDB table (${target_ddb_table})"
